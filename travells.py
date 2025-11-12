@@ -6,11 +6,49 @@ from bson import ObjectId
 # -----------------------------
 # MongoDB CONNECTION
 # -----------------------------
-MONGO_URI = st.secrets.get("MONGO_URI", "mongodb://localhost:27017")  # Use Atlas URI in deployment
+MONGO_URI = st.secrets.get("MONGO_URI", "mongodb://localhost:27017")
 client = MongoClient(MONGO_URI)
-db = client["travelDB"]
+db = client["travelland"]  # changed DB name to travelland
 trips_collection = db["trips"]
 bookings_collection = db["bookings"]
+
+# -----------------------------
+# Add Sample Data if Empty
+# -----------------------------
+def seed_sample_trips():
+    """Insert some default trips if collection is empty."""
+    if trips_collection.count_documents({}) == 0:
+        sample_trips = [
+            {
+                "destination": "Paris",
+                "price": 1200,
+                "date": "2025-12-01",
+                "description": "Experience art, romance, and culture in the City of Lights."
+            },
+            {
+                "destination": "Tokyo",
+                "price": 1500,
+                "date": "2025-12-15",
+                "description": "Discover modern Japan blended with ancient traditions."
+            },
+            {
+                "destination": "Bali",
+                "price": 950,
+                "date": "2026-01-10",
+                "description": "Relax on sandy beaches and explore tropical jungles."
+            },
+            {
+                "destination": "New York",
+                "price": 1100,
+                "date": "2026-02-05",
+                "description": "Enjoy the energy of the Big Apple with endless attractions."
+            }
+        ]
+        trips_collection.insert_many(sample_trips)
+        print("✅ Sample trips added to database!")
+
+# Run only once at startup
+seed_sample_trips()
 
 # -----------------------------
 # Helper Functions
@@ -42,9 +80,9 @@ def get_all_bookings():
 # -----------------------------
 # Streamlit UI
 # -----------------------------
-st.set_page_config(page_title="🌍 Travel Booking App", layout="wide")
+st.set_page_config(page_title="🌍 TravelLand Booking App", layout="wide")
 
-st.title("🌍 Travel Booking System")
+st.title("🌍 Welcome to TravelLand Booking System")
 
 menu = st.sidebar.radio("Menu", ["Search Trips", "Book a Trip", "Admin - View Bookings"])
 
@@ -104,4 +142,3 @@ elif menu == "Admin - View Bookings":
         st.dataframe(df)
     else:
         st.info("No bookings found yet.")
-travell
